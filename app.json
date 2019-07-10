@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "Requestion",
+    "slug": "requestion-app",
+    "privacy": "unlisted",
+    "sdkVersion": "33.0.0",
+    "platforms": [
+      "ios"
+    ],
+    "version": "1.0",
+    "orientation": "portrait",
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "ios": {
+      "bundleIdentifier": "app.requestion.mvp",
+      "supportsTablet": true,
+      "publishBundlePath": "ios/requestion/Supporting/shell-app.bundle",
+      "publishManifestPath": "ios/requestion/Supporting/shell-app-manifest.json"
+    },
+    "description": "Start a conversation with real facts that you care about. On Requestion app you can search for new stickers to share on Instagram, Snapchat Stories or anywhere you have followers.  Raise an issue with the news or the latest sports stats with Requestion stickers.  ",
+    "splash": {
+      "backgroundColor": "#F5CE66",
+      "image": "./assets/splash.png"
+    },
+    "icon": "./assets/icon.png",
+    "scheme": "exp5628c33ed8a840b186b79a7fb7bd152f",
+    "android": {
+      "package": "app.requestion.mvp",
+      "publishBundlePath": "android/app/src/main/assets/shell-app.bundle",
+      "publishManifestPath": "android/app/src/main/assets/shell-app-manifest.json"
+    }
+  }
+}
