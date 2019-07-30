@@ -5,7 +5,6 @@ import {
   Text,
   Image,
   View,
-  ImageBackground,
   Platform
 } from "react-native";
 import Sticker from "../Sticker";
@@ -89,7 +88,11 @@ export default class StickerDetails extends PureComponent {
   };
   igShare = () => {
     console.log("igShare is called");
-    this.sticker.current.onShare("ig");
+    this.sticker.current.onShare("IG");
+  };
+  snapShare = () => {
+    console.log("snapShare is called");
+    this.sticker.current.onShare("Snap");
   };
   alternate = () => {
     // console.log('starting to alternate');
@@ -211,6 +214,7 @@ export default class StickerDetails extends PureComponent {
     >
       <View style={{ flex: 1, flexDirection: "row", justifyContent: "center" }}>
         <TouchableOpacity
+        onPress={this.snapShare}
           style={{
             borderRadius: 10,
             alignContent: "center",

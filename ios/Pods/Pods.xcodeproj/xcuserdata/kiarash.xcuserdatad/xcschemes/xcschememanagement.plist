@@ -339,6 +339,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>SnapSDK.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>UMBarCodeScannerInterface.xcscheme</key>
 		<dict>
 			<key>isShown</key>

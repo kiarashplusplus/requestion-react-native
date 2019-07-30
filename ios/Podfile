@@ -18,6 +18,7 @@ target 'requestion' do
       'expo-payments-stripe',
     ],
   )
+  pod 'SnapSDK', :subspecs => ['SCSDKCreativeKit']
 
   pod 'React',
     :path => "../node_modules/react-native",

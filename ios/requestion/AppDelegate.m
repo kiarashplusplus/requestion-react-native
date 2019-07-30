@@ -1,11 +1,13 @@
 // Copyright 2015-present 650 Industries. All rights reserved.
 
 #import "AppDelegate.h"
+#import "SnapKit.h"
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+  [SnapKit new];
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
 

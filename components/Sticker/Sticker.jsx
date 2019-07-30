@@ -5,6 +5,7 @@ import {
   Dimensions,
   Image,
   Linking,
+  NativeModules,
   Share,
   TouchableOpacity,
   TouchableWithoutFeedback,
@@ -14,6 +15,7 @@ import styles, { gradientColors, outerContainer } from "./Sticker.styles";
 const { width, height } = Dimensions.get("window");
 import { LinearGradient } from "expo-linear-gradient";
 
+const SnapKit = NativeModules.SnapKit;
 const cardMargin = 10;
 const instagramUrl =
   "instagram://library?InstagramCaption=Requestion.app&AssetPath=%@";
@@ -79,12 +81,14 @@ class Sticker extends Component {
       cardWidth: this.cardWidth
     });
 
-  onShare = async (type = "default") => {
-    console.log("onShare is pressed!");
-    if (type == "ig") {
+  onShare = async (type) => {
+    console.log("onShare is pressed with type: ", type);
+    if (type == "IG") {
       await CameraRoll.saveToCameraRoll(this.state.base64, "photo");
       // const link = instagramUrl + encodeURIComponent(this.state.base64.split("data:image/jpeg;base64,")[1]);
       return Linking.openURL(instagramUrl);
+    } else if (type == "Snap") {
+      SnapKit.share(this.state.base64, "https://requestion.app", this.state.cardWidth, this.state.cardHeight);
     } else {
       try {
         const result = await Share.share(

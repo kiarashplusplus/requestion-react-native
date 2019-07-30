@@ -1308,6 +1308,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 
+## SnapSDK
+
+Any access or use of the included software, associated documentation, software
+code, or other materials made available by Snap Inc. (and its affiliates) is
+subject to your agreement and acceptance (by clicking the accept button) of the
+Snap Developer Terms of Service found at:
+
+  https://kit.snapchat.com/portal/eula/04.30.2018/en-US.html
+
+If you do not wish to be a party to these terms or if you do not agree to all
+of these terms, then do not use or otherwise access any such software,
+documentation, software code, and other materials.
+
+
+
 ## boost-for-react-native
 
 Boost Software License - Version 1.0 - August 17th, 2003
