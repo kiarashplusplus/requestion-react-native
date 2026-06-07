@@ -6,11 +6,12 @@ import {
   Platform,
   FlatList,
   Text,
+  TouchableOpacity,
   SectionList,
   Keyboard,
-  StatusBar,
-  SafeAreaView
+  StatusBar
 } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import * as Font from "expo-font";
 import AwesomeDebouncePromise from "awesome-debounce-promise";
 import SearchBar from "./components/react-native-dynamic-search-bar";
@@ -18,8 +19,20 @@ import Sticker from "./components/Sticker";
 import StickerDetails from "./components/StickerDetails";
 const _ = require("lodash");
 
-const requestionFeatured = () =>
-  fetch("https://requestion.app/featured")
+const localityParam = locality =>
+  locality ? "&locality=" + encodeURIComponent(locality) : "";
+
+const requestionLocalities = () =>
+  fetch("https://requestion.app/localities")
+    .then(response => (response.ok ? response.json() : []))
+    .catch(error => {
+      console.error(error);
+      return [];
+    });
+
+// "Near you" headlines for the selected locality.
+const requestionFeatured = locality =>
+  fetch("https://requestion.app/featured?locality=" + encodeURIComponent(locality || ""))
     .then(response => {
       if (!response.ok) {
         return [];
@@ -34,8 +47,12 @@ const requestionFeatured = () =>
       return [];
     });
 
-const requestionQuery = query =>
-  fetch("https://requestion.app/query?q=" + encodeURIComponent(query))
+const requestionQuery = (query, locality) =>
+  fetch(
+    "https://requestion.app/query?q=" +
+      encodeURIComponent(query) +
+      localityParam(locality)
+  )
     .then(response => {
       if (!response.ok) {
         return [];
@@ -60,7 +77,9 @@ export default class App extends Component {
       query: "",
       sections: {},
       isLoading: false,
-      fontLoaded: false
+      fontLoaded: false,
+      localities: [],
+      locality: null
     };
   }
 
@@ -71,11 +90,25 @@ export default class App extends Component {
     await Font.loadAsync({
       "roboto-light": require("./assets/fonts/Roboto-Light.ttf")
     });
-    const featured = await requestionFeatured();
+    const localities = await requestionLocalities();
+    // Default to the first available locality so "near you" has content on launch.
+    const locality = localities.length ? localities[0].id : null;
+    const featured = await requestionFeatured(locality);
     console.log(featured);
     //_.map(featured, item => Image.prefetch(item.imgSrc));
-    this.setState({ fontLoaded: true, featured: featured });
+    this.setState({ fontLoaded: true, featured: featured, localities, locality });
   }
+
+  // Switch locality: refresh "near you" headlines and re-run any active search.
+  selectLocality = async locality => {
+    if (locality === this.state.locality) return;
+    this.setState({ locality, featured: [] });
+    const featured = await requestionFeatured(locality);
+    this.setState({ featured });
+    if (this.state.query) {
+      this.setQuery(this.state.query);
+    }
+  };
 
   setQuery = async text => {
     this.setState({
@@ -83,7 +116,7 @@ export default class App extends Component {
       query: text,
       isLoading: true
     });
-    const sections = await queryDebounced(text);
+    const sections = await queryDebounced(text, this.state.locality);
     if (this.state.query == text) {
       this.setState({ sections: sections, isLoading: false });
       Keyboard.dismiss();
@@ -139,7 +172,8 @@ export default class App extends Component {
     const inputAccessoryViewID = "requestionSearch";
     const placeholder = "Search for fact stickers";
     return (
-      this.state.fontLoaded && <SafeAreaView style={{ flex: 1, backgroundColor: "#21283d" }}>
+      <SafeAreaProvider>
+      {this.state.fontLoaded && <SafeAreaView style={{ flex: 1, backgroundColor: "#21283d" }}>
         <StatusBar barStyle={"light-content"} />
         <View style={styles.container}>
           <SearchBar
@@ -164,6 +198,34 @@ export default class App extends Component {
               this.search.textInput.focus();
             }}
           />
+          {this.state.localities.length > 0 && (
+            <FlatList
+              data={this.state.localities}
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+              keyboardShouldPersistTaps={"handled"}
+              style={{ marginTop: 12, maxHeight: 40 }}
+              keyExtractor={item => item.id}
+              renderItem={({ item }) => {
+                const active = item.id === this.state.locality;
+                return (
+                  <TouchableOpacity
+                    onPress={() => this.selectLocality(item.id)}
+                    style={[styles.localityChip, active && styles.localityChipActive]}
+                  >
+                    <Text
+                      style={[
+                        styles.localityChipText,
+                        active && styles.localityChipTextActive
+                      ]}
+                    >
+                      {item.name}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          )}
           <View style={{ top: 16 }}>
             {this.state.isLoading && !this.state.isDetailsPage && (
               <ActivityIndicator animating={this.state.isLoading} />
@@ -230,7 +292,7 @@ export default class App extends Component {
                     color: "white"
                   }}
                 >
-                  Featured Topics
+                  Near you
                 </Text>
               )}
               <FlatList
@@ -244,7 +306,8 @@ export default class App extends Component {
             </View>
           </InputAccessoryView>
         </View>
-      </SafeAreaView>
+      </SafeAreaView>}
+      </SafeAreaProvider>
     );
   }
 }
@@ -255,5 +318,24 @@ const styles = {
     justifyContent: "flex-start",
     alignItems: "center",
     backgroundColor: "#21283d"
+  },
+  localityChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    marginHorizontal: 4,
+    borderRadius: 16,
+    backgroundColor: "#353d5e",
+    justifyContent: "center"
+  },
+  localityChipActive: {
+    backgroundColor: "#556cd6"
+  },
+  localityChipText: {
+    color: "#c6c6c6",
+    fontSize: 14
+  },
+  localityChipTextActive: {
+    color: "white",
+    fontWeight: "bold"
   }
 };
