@@ -3,10 +3,18 @@
 This app was migrated from **Expo SDK 33 (detached / ExpoKit, RN 0.59, React 16)**
 to **Expo SDK 56 managed workflow (RN 0.85, React 19.2)**.
 
-> ⚠️ **This migration was authored in an environment without `node_modules`, npm
-> access, or macOS/Xcode, so it could not be installed, built, or run.** It is the
-> code/config migration; the steps in [§3](#3-required-steps-on-a-real-machine)
-> must be run on a dev machine to produce a working build.
+> **Verified so far (Linux container, no Xcode):**
+> - `npm install` — clean, no peer-dependency conflicts.
+> - `npx expo-doctor` — **21/21 checks pass**.
+> - `npx expo export --platform ios` — Metro bundles **all** JS into a Hermes
+>   bundle with no resolution/transform errors (exercises the icon shim,
+>   `expo-web-browser`, `react-native-safe-area-context`, and the vendored
+>   search bar).
+>
+> **Still requires a Mac (can't run here):** actual native iOS compile via
+> `expo prebuild` + Xcode or `eas build`, and on-device/simulator runtime
+> testing — including the Ionicons glyph audit in [§4](#4-known-follow-ups).
+> Package versions are the exact SDK 56 pins (no longer placeholders).
 
 ## 1. Why this isn't a version bump
 
@@ -52,17 +60,15 @@ managed modules.
 
 ## 3. Required steps on a real machine
 
+Dependency versions are already the exact SDK 56 pins (taken from
+`expo/bundledNativeModules.json`), `expo-doctor` is green, and the JS bundles.
+Remaining steps need macOS:
+
 ```bash
 cd requestion-react-native
-rm -rf node_modules package-lock.json
-npx expo install --fix     # pins EXACT SDK 56 versions for every expo-* package
-npx expo-doctor            # verifies the dependency tree
-npx expo start             # smoke test in Expo Go / dev client
+npm install
+npx expo start             # smoke test in Expo Go / dev client (Mac or device)
 ```
-
-The versions in `package.json` for the `expo-*` / native packages are
-**best-effort placeholders** — `expo install --fix` will overwrite them with the
-exact versions SDK 56 requires. Do not hand-pick these.
 
 To produce native builds (managed → no committed native dirs):
 
