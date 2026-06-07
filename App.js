@@ -9,9 +9,9 @@ import {
   TouchableOpacity,
   SectionList,
   Keyboard,
-  StatusBar,
-  SafeAreaView
+  StatusBar
 } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import * as Font from "expo-font";
 import AwesomeDebouncePromise from "awesome-debounce-promise";
 import SearchBar from "./components/react-native-dynamic-search-bar";
@@ -172,7 +172,8 @@ export default class App extends Component {
     const inputAccessoryViewID = "requestionSearch";
     const placeholder = "Search for fact stickers";
     return (
-      this.state.fontLoaded && <SafeAreaView style={{ flex: 1, backgroundColor: "#21283d" }}>
+      <SafeAreaProvider>
+      {this.state.fontLoaded && <SafeAreaView style={{ flex: 1, backgroundColor: "#21283d" }}>
         <StatusBar barStyle={"light-content"} />
         <View style={styles.container}>
           <SearchBar
@@ -305,7 +306,8 @@ export default class App extends Component {
             </View>
           </InputAccessoryView>
         </View>
-      </SafeAreaView>
+      </SafeAreaView>}
+      </SafeAreaProvider>
     );
   }
 }

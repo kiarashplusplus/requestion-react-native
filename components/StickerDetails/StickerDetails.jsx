@@ -8,9 +8,9 @@ import {
   Platform
 } from "react-native";
 import Sticker from "../Sticker";
-import Icon from "react-native-dynamic-vector-icons";
+import Icon from "../Icon";
 var _ = require("lodash");
-import { WebBrowser } from "expo";
+import * as WebBrowser from "expo-web-browser";
 
 const controllBottom = 0;
 
