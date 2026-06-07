@@ -282,7 +282,7 @@ export default class StickerDetails extends PureComponent {
           }}
         >
           <Icon
-            name="ios-share-alt"
+            name="share-outline"
             type="Ionicons"
             size={20}
             color="#FFFFFF"

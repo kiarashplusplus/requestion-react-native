@@ -70,23 +70,32 @@ npm install
 npx expo start             # smoke test in Expo Go / dev client (Mac or device)
 ```
 
-To produce native builds (managed → no committed native dirs):
+To produce native builds (managed → no committed native dirs), EAS build
+profiles are configured in [`eas.json`](eas.json) (`development` / `preview`
+are iOS-simulator internal builds; `production` is a store build with
+`autoIncrement`). First-time setup links the project to an Expo account:
 
 ```bash
-npx expo prebuild          # regenerates ios/ (and android/) locally, if needed
-# or, preferred:
-eas build -p ios           # cloud build via EAS
+npm i -g eas-cli            # or use `npx eas-cli ...`
+eas login
+eas init                    # writes extra.eas.projectId into app.json
+eas build -p ios --profile preview      # simulator build to smoke test
+eas build -p ios --profile production   # store build (needs Apple credentials)
 ```
 
-## 4. Known follow-ups (need a running app to verify)
+Alternatively, `npx expo prebuild` regenerates `ios/` locally for a bare Xcode
+build (not needed for EAS).
 
-- **Ionicons glyph names.** This app targeted Ionicons v4; names changed in v5+.
-  `ios-share-alt` (in `StickerDetails.jsx`) no longer exists and will render as a
-  missing glyph — likely `share-social-outline` now. Audit each `Ionicons` name
-  once the app runs. (`logo-instagram`, `arrow-back` (MaterialIcons) are fine.)
+## 4. Known follow-ups
+
+- **Ionicons glyph names — DONE.** Audited every icon name against the installed
+  `@expo/vector-icons` v15 glyphmaps. Only `ios-share-alt` (Ionicons v4) was
+  missing; renamed to `share-outline` in `StickerDetails.jsx`. All other names
+  (`logo-instagram`, `arrow-back`/MaterialIcons, the search bar's `search`/Octicons
+  and `clear`/MaterialIcons defaults) exist in v15.
 - **Vendored search bar** (`components/react-native-dynamic-search-bar`) still
   depends on `react-native-iphone-x-helper`; kept as a dependency. Consider
   replacing it with `react-native-safe-area-context` insets later.
 - **`InputAccessoryView`** is iOS-only (the app is iOS-only, so fine).
-- **New Architecture** is enabled (`newArchEnabled: true`); verify the vendored
-  search bar and gradient render correctly under it.
+- **New Architecture** is the default in RN 0.85; verify the vendored search bar
+  and gradient render correctly under it once running.
