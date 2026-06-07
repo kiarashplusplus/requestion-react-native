@@ -1,5 +1,5 @@
 import Icon from "../components/Icon";
-import { MaterialIcons, Ionicons, Octicons } from "@expo/vector-icons";
+import { MaterialIcons, Ionicons, Octicons, FontAwesome5 } from "@expo/vector-icons";
 
 // Icon is a thin compat shim: it returns React.createElement(<family>, props),
 // so we can assert on the returned element directly without rendering — which
@@ -26,5 +26,14 @@ describe("Icon compat shim", () => {
     const el = Icon({ type: "Octicons", name: "search", accessibilityLabel: "search" });
     expect(el.type).toBe(Octicons);
     expect(el.props.accessibilityLabel).toBe("search");
+  });
+
+  // The TikTok share button renders <Icon type="FontAwesome5" name="tiktok" brand/>,
+  // so the shim must forward the `brand` flag that selects the brands font.
+  it("forwards the FontAwesome5 `brand` flag (TikTok share icon)", () => {
+    const el = Icon({ type: "FontAwesome5", name: "tiktok", brand: true });
+    expect(el.type).toBe(FontAwesome5);
+    expect(el.props.name).toBe("tiktok");
+    expect(el.props.brand).toBe(true);
   });
 });

@@ -7,7 +7,7 @@
     "icon": "./assets/icon.png",
     "scheme": "requestion",
     "userInterfaceStyle": "automatic",
-    "description": "Start a conversation with real facts that you care about. On Requestion app you can search for new stickers to share on Instagram, Snapchat Stories or anywhere you have followers. Raise an issue with the news or the latest sports stats with Requestion stickers.",
+    "description": "Start a conversation with real facts that you care about. On Requestion app you can search for new stickers to share on Instagram, TikTok or anywhere you have followers. Raise an issue with the news or the latest sports stats with Requestion stickers.",
     "plugins": [
       [
         "expo-splash-screen",
@@ -15,6 +15,14 @@
           "image": "./assets/splash.png",
           "resizeMode": "contain",
           "backgroundColor": "#F5CE66"
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow Requestion to save stickers to your photos so you can post them.",
+          "savePhotosPermission": "Allow Requestion to save stickers to your photos so you can post them.",
+          "isAccessMediaLocationEnabled": false
         }
       ]
     ],
@@ -26,7 +34,10 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.requestion.mvp"
+      "bundleIdentifier": "app.requestion.mvp",
+      "infoPlist": {
+        "LSApplicationQueriesSchemes": ["instagram", "tiktok", "snssdk1233"]
+      }
     },
     "platforms": [
       "ios"

@@ -1,11 +1,9 @@
 import React, { Component } from "react";
 import {
   ActivityIndicator,
-  CameraRoll,
   Dimensions,
   Image,
   Linking,
-  NativeModules,
   Share,
   TouchableOpacity,
   TouchableWithoutFeedback,
@@ -14,11 +12,16 @@ import {
 import styles, { gradientColors, outerContainer } from "./Sticker.styles";
 const { width, height } = Dimensions.get("window");
 import { LinearGradient } from "expo-linear-gradient";
+import * as MediaLibrary from "expo-media-library";
+// The classic FileSystem functions moved to the /legacy entry point in SDK 52+.
+import * as FileSystem from "expo-file-system/legacy";
+import * as Sharing from "expo-sharing";
 
-const SnapKit = NativeModules.SnapKit;
 const cardMargin = 10;
-const instagramUrl =
-  "instagram://library?InstagramCaption=Requestion.app&AssetPath=%@";
+// Deep links into the target apps' library/upload after the sticker is saved to
+// Photos. If the app isn't installed we fall back to the OS share sheet.
+const instagramUrl = "instagram://library?AssetPath=";
+const tiktokUrl = "tiktok://";
 
 class Sticker extends Component {
   _isMounted = false;
@@ -81,53 +84,57 @@ class Sticker extends Component {
       cardWidth: this.cardWidth
     });
 
-  onShare = async (type) => {
+  // Write the current base64 sticker to a temp PNG file. Photos and the share
+  // sheet both need a file URI, not a base64 data URI.
+  writeStickerFile = async () => {
+    if (!this.state.base64) return null;
+    const base64 = this.state.base64.replace(/^data:image\/\w+;base64,/, "");
+    const fileUri = `${FileSystem.cacheDirectory}requestion-sticker-${Date.now()}.png`;
+    await FileSystem.writeAsStringAsync(fileUri, base64, {
+      encoding: FileSystem.EncodingType.Base64
+    });
+    return fileUri;
+  };
+
+  saveToPhotos = async fileUri => {
+    const { granted } = await MediaLibrary.requestPermissionsAsync();
+    if (!granted) return false;
+    await MediaLibrary.createAssetAsync(fileUri);
+    return true;
+  };
+
+  // Try the target app's deep link; if it isn't installed, fall back to the OS
+  // share sheet so the saved sticker can still be posted.
+  openAppOrShareSheet = async (appUrl, fileUri) => {
+    const canOpen = await Linking.canOpenURL(appUrl).catch(() => false);
+    if (canOpen) return Linking.openURL(appUrl);
+    if (await Sharing.isAvailableAsync()) return Sharing.shareAsync(fileUri);
+  };
+
+  onShare = async type => {
     console.log("onShare is pressed with type: ", type);
-    if (type == "IG") {
-      await CameraRoll.saveToCameraRoll(this.state.base64, "photo");
-      // const link = instagramUrl + encodeURIComponent(this.state.base64.split("data:image/jpeg;base64,")[1]);
-      return Linking.openURL(instagramUrl);
-    } else if (type == "Snap") {
-      SnapKit.share(this.state.base64, "https://requestion.app", this.state.cardWidth, this.state.cardHeight);
-    } else {
-      try {
-        const result = await Share.share(
-          {
-            message: this.props.imgSrc + "&html=true",
-            title: "Requestion",
-            url: this.state.base64
-          },
-          {
-            excludedActivityTypes: [
-              "com.apple.UIKit.activity.PostToWeibo",
-              "com.apple.UIKit.activity.Print",
-              "com.apple.UIKit.activity.AssignToContact",
-              "com.apple.UIKit.activity.AddToReadingList",
-              "com.apple.UIKit.activity.PostToFlickr",
-              "com.apple.UIKit.activity.PostToVimeo",
-              "com.apple.UIKit.activity.PostToTencentWeibo",
-              "com.apple.UIKit.activity.OpenInIBooks",
-              "com.apple.UIKit.activity.MarkupAsPDF",
-              "com.apple.reminders.RemindersEditorExtension",
-              "com.apple.mobileslideshow.StreamShareService",
-              "pinterest.ShareExtension",
-              "com.google.GooglePlus.ShareExtension",
-              "com.tumblr.tumblr.Share-With-Tumblr"
-            ]
-          }
-        );
-        if (result.action === Share.sharedAction) {
-          if (result.activityType) {
-            // shared with activity type of result.activityType
-          } else {
-            // shared
-          }
-        } else if (result.action === Share.dismissedAction) {
-          // dismissed
-        }
-      } catch (error) {
-        alert(error.message);
+    try {
+      const fileUri = await this.writeStickerFile();
+      if (!fileUri) return;
+      if (type === "IG") {
+        await this.saveToPhotos(fileUri);
+        await this.openAppOrShareSheet(instagramUrl, fileUri);
+      } else if (type === "TikTok") {
+        await this.saveToPhotos(fileUri);
+        await this.openAppOrShareSheet(tiktokUrl, fileUri);
+      } else if (await Sharing.isAvailableAsync()) {
+        // Native share sheet with the real image file (more reliable than
+        // sharing a base64 data URI through RN's Share API).
+        await Sharing.shareAsync(fileUri, { dialogTitle: "Requestion" });
+      } else {
+        await Share.share({
+          message: this.props.imgSrc + "&html=true",
+          title: "Requestion",
+          url: fileUri
+        });
       }
+    } catch (error) {
+      console.log("onShare error:", error);
     }
   };
 

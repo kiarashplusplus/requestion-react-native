@@ -90,9 +90,9 @@ export default class StickerDetails extends PureComponent {
     console.log("igShare is called");
     this.sticker.current.onShare("IG");
   };
-  snapShare = () => {
-    console.log("snapShare is called");
-    this.sticker.current.onShare("Snap");
+  tiktokShare = () => {
+    console.log("tiktokShare is called");
+    this.sticker.current.onShare("TikTok");
   };
   alternate = () => {
     // console.log('starting to alternate');
@@ -214,12 +214,12 @@ export default class StickerDetails extends PureComponent {
     >
       <View style={{ flex: 1, flexDirection: "row", justifyContent: "center" }}>
         <TouchableOpacity
-        onPress={this.snapShare}
+        onPress={this.tiktokShare}
           style={{
             borderRadius: 10,
             alignContent: "center",
-            backgroundColor: "#fffc00",
-            borderColor: "#fffc00",
+            backgroundColor: "#010101",
+            borderColor: "#010101",
             borderWidth: 1,
             maxHeight: 40,
             maxWidth: 180,
@@ -227,13 +227,9 @@ export default class StickerDetails extends PureComponent {
             margin: 20
           }}
         >
-          <View style={{ flexDirection: "row", justifyContent: "center" }}>
-            <Image
-              source={require("../../assets/iconfinder_snapchat_2136492.png")}
-              fadeDuration={0}
-              style={{ width: 20, height: 20 }}
-            />
-            <Text style={{ fontFamily: "roboto", fontSize: 14, margin: 2 }}>
+          <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
+            <Icon name="tiktok" type="FontAwesome5" brand size={18} color="#FFFFFF" />
+            <Text style={{ fontFamily: "roboto", fontSize: 14, margin: 2, color: "#FFFFFF" }}>
               Share
             </Text>
           </View>
